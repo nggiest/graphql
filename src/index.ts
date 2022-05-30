@@ -1,8 +1,9 @@
 import {Sequelize} from "sequelize";
-import { initModels, product, productCreationAttributes, order } from "./models/init-models";
+import { initModels, product, productCreationAttributes, order, orderCreationAttributes, orderdetailCreationAttributes, orderdetail} from "./models/init-models";
 import * as dotenv from "dotenv";
 import { readFileSync } from "fs";
 import {ApolloServer} from "apollo-server";
+import { v4 as uuidv4 } from 'uuid';
 
 const typeDefs = readFileSync("./src/tugas.graphql").toString('utf-8');
 dotenv.config();
@@ -59,9 +60,48 @@ const resolvers = {
 			})
 		},
 
-        GetDetailOrder: async (_parent: any, args: any) => {
-			return await order.findByPk(args.id);
-		},
+        getDetailOrder: async (_parent: any, args: any) => {
+            return await order.findByPk(args.id);
+          },
+      
+          createOrder: async (_parent: any, args: any) => {
+            const now = new Date();
+            const generator = uuidv4();
+      
+            const newOrder: orderCreationAttributes = {
+              transcode: generator,
+              created: now.toDateString(),
+            };
+            const res =  await order.create(newOrder);
+
+            const findProduct = await product.findByPk(args.productId)
+            await product.update({stock:Number(findProduct?.stock)-args.quantity}, { where: { id: args.productId } });
+            const price = Number(findProduct?.price) 
+    
+            const newOrderDetail: orderdetailCreationAttributes = {
+              product_id:Number(findProduct?.id),
+              quantity:args.quantity,
+              price: price,
+              order_id: res.id
+            }
+            await orderdetail.create(newOrderDetail)
+            return res;
+          },
+      
+          updateOrder: async (_parent: any, args: any) => {
+            const generator = uuidv4();
+      
+            const updOrder = {
+              transcode: generator,
+            };
+            await order.update(updOrder, { where: { id: args.id } });
+            return await order.findByPk(args.id);
+          },
+      
+          deleteOrder: (_parent: any, args: any) => {
+            order.destroy({ where: { id: args.id } });
+            return order.findByPk(args.id);
+          },
 
     }
 };

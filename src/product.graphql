@@ -7,17 +7,20 @@ type Mutation {
     CreateProduct( name: String, stock: Int, price: Int, created: Date ): Product;
     UpdateProduct(id: Int, name: String, stock: Int, price: Int, created: Date): Product;
     DeleteProduct(id: Int): Product;
+
+    getDetailOrder(id: Int): Order
+    createOrder(transcode: String, created: String): Order
 }
 type Product{
     id: Int,
     name: String,
     stock: Int,
     price: Int,
-    created: Date,
+    created: String,
 }
 
 type Order{
     id: Int,
     transcode: String,
-    created: Date,
+    created: String,
 }

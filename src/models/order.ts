@@ -4,7 +4,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 export interface orderAttributes {
   id: number;
   transcode: string;
-  created: Date;
+  created: String;
 }
 
 export type orderPk = "id";
@@ -15,7 +15,7 @@ export type orderCreationAttributes = Optional<orderAttributes, orderOptionalAtt
 export class order extends Model<orderAttributes, orderCreationAttributes> implements orderAttributes {
   id!: number;
   transcode!: string;
-  created!: Date;
+  created!: String;
 
 
   static initModel(sequelize: Sequelize.Sequelize): typeof order {
